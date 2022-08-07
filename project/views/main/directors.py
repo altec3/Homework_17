@@ -4,21 +4,26 @@ from flask_restx import Resource, Namespace
 from project.setup.schemas.schema import DirectorSchema
 from project.setup.inits.app_init import api, db
 from project.setup.models.models import Director
+from project.utils.models_converter import convert_and_register_model
 
 directors_ns: Namespace = api.namespace("directors")
 
 directors_schema = DirectorSchema(many=True)
 director_schema = DirectorSchema()
 
+convert_and_register_model("director", director_schema)
+convert_and_register_model("directors", directors_schema)
+
 
 @directors_ns.route("/")
 class DirectorsView(Resource):
 
-    @directors_ns.response(200, description="Возвращает список режиссеров")
+    @directors_ns.response(200, description="Возвращает список режиссеров", model=api.models["directors"])
     def get(self):
         all_directors = db.session.query(Director).all()
         return directors_schema.dump(all_directors), 200
 
+    @directors_ns.expect(api.models["director"])
     @directors_ns.response(201, description="Режиссер успешно добавлен в список")
     @directors_ns.response(404, description="Ошибка добавления режиссера в список")
     def post(self):
@@ -35,7 +40,7 @@ class DirectorsView(Resource):
 @directors_ns.route("/<int:did>")
 class DirectorView(Resource):
 
-    @directors_ns.response(200, description="Возвращает режиссера по его ID")
+    @directors_ns.response(200, description="Возвращает режиссера по его ID", model=api.models["director"])
     @directors_ns.response(404, description="Режиссер с данным ID не найден в базе")
     def get(self, did: int):
         director = db.session.query(Director).get(did)
