@@ -1,10 +1,10 @@
 from flask import request
 from flask_restx import Resource, Namespace
-from schemas.schema import DirectorSchema
 
-from inits.db_init import db
-from inits.app_init import api
-from models.models import Director
+from project.setup.schemas.schema import DirectorSchema
+from project.setup.inits.app_init import db
+from project.setup.inits.app_init import api
+from project.setup.models.models import Director
 
 directors_ns: Namespace = api.namespace("directors")
 
@@ -19,18 +19,14 @@ class DirectorsView(Resource):
         return directors_schema.dump(all_directors), 200
 
     def post(self):
-        data = request.json
-        if isinstance(data, dict):
-            director = director_schema.load(data)
-            try:
-                with db.session.begin():
-                    db.session.add(Director(**director))
-            except Exception:
-                return "", 400
-            else:
-                return "", 201
-        else:
+        try:
+            director: dict = director_schema.load(request.json)
+            with db.session.begin():
+                db.session.add(Director(**director))
+        except Exception:
             return "", 400
+        else:
+            return "", 201
 
 
 @directors_ns.route("/<int:did>")
@@ -39,7 +35,7 @@ class DirectorView(Resource):
     def get(self, did: int):
         director = db.session.query(Director).get(did)
         if director is None:
-            return {}, 404
+            return "", 404
         else:
             return director_schema.dump(director), 200
 
@@ -50,10 +46,7 @@ class DirectorView(Resource):
         return "", 404
 
     def delete(self, did: int):
-        try:
-            with db.session.begin():
-                db.session.query(Director).get(did).delete()
-        except Exception:
-            return "", 404
-        else:
-            return "", 204
+        with db.session.begin():
+            if db.session.query(Director).filter(Director.id == did).delete():
+                return "", 204
+        return "", 404

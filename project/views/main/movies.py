@@ -1,10 +1,10 @@
 from flask import request
 from flask_restx import Resource, Namespace
-from schemas.schema import MovieSchema
 
-from inits.db_init import db
-from inits.app_init import api
-from models.models import Movie
+from project.setup.schemas.schema import MovieSchema
+from project.setup.inits.app_init import db
+from project.setup.inits.app_init import api
+from project.setup.models.models import Movie
 
 movies_ns: Namespace = api.namespace("movies")
 
@@ -29,13 +29,35 @@ class MoviesView(Resource):
         all_movies = db_request.all()
         return movies_schema.dump(all_movies), 200
 
+    def post(self):
+        try:
+            movie: dict = movie_schema.load(request.json)
+            with db.session.begin():
+                db.session.add(Movie(**movie))
+        except Exception:
+            return "", 400
+        else:
+            return "", 201
 
 @movies_ns.route("/<int:mid>")
 class MovieView(Resource):
 
-    def get(self, mid):
+    def get(self, mid: int):
         movie = db.session.query(Movie).get(mid)
         if movie is None:
-            return {}, 404
+            return "", 404
         else:
             return movie_schema.dump(movie), 200
+
+    def put(self, mid: int):
+        with db.session.begin():
+            if db.session.query(Movie).filter(Movie.id == mid).update(request.json):
+                return "", 204
+        return "", 404
+
+    def delete(self, mid: int):
+        with db.session.begin():
+            if db.session.query(Movie).filter(Movie.id == mid).delete():
+                return "", 204
+        return "", 404
+

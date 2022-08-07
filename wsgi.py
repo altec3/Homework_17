@@ -1,4 +1,5 @@
-from inits.app_init import app_init
+from project.setup.inits.app_init import app_init
+
 
 app = app_init()
 
