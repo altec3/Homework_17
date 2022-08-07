@@ -16,7 +16,6 @@ def app_init(config_file: str = APP_CONFIG) -> Flask:
     app.config.from_pyfile(config_file)
     db.init_app(app)
     api.init_app(app)
-    # app.config["API"] = api
 
     # Импортируем маршруты
     from project.views.main import movies, directors, genres  # noqa
@@ -24,8 +23,8 @@ def app_init(config_file: str = APP_CONFIG) -> Flask:
     db_tools = DBTools()
     json_tools = JSONTools()
 
-    # Создаем базу. Добавляем таблицы в базу
     with app.app_context():
+        # Создаем базу. Добавляем таблицы в базу
         db.drop_all()
         db.create_all()
 
