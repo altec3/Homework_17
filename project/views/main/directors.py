@@ -6,10 +6,10 @@ from project.setup.inits.app_init import api, db
 from project.setup.models.models import Director
 from project.utils.models_converter import convert_and_register_model
 
-directors_ns: Namespace = api.namespace("directors")
+directors_ns: Namespace = Namespace("directors")
 
-directors_schema = DirectorSchema(many=True)
 director_schema = DirectorSchema()
+directors_schema = DirectorSchema(many=True)
 
 convert_and_register_model("director", director_schema)
 convert_and_register_model("directors", directors_schema)
@@ -43,11 +43,8 @@ class DirectorView(Resource):
     @directors_ns.response(200, description="Возвращает режиссера по его ID", model=api.models["director"])
     @directors_ns.response(404, description="Режиссер с данным ID не найден в базе")
     def get(self, did: int):
-        director = db.session.query(Director).get(did)
-        if director is None:
-            return "", 404
-        else:
-            return director_schema.dump(director), 200
+        director = db.session.query(Director).get_or_404(did)
+        return director_schema.dump(director), 200
 
     @directors_ns.response(204, description="Данные по режиссеру успешно обновлены")
     @directors_ns.response(404, description="Ошибка обновления данных режиссера")

@@ -3,6 +3,7 @@ from marshmallow import fields as marshmallow_fields, Schema
 
 from project.setup.inits.app_init import api
 
+
 TYPE_MAPPING = {
     marshmallow_fields.Float: flask_fields.Float,
     marshmallow_fields.Integer: flask_fields.Integer,
@@ -23,3 +24,8 @@ def convert_and_register_model(schema_name: str, schema_data: Schema):
     api.model(name=schema_name, model=converted_schema)
 
     return converted_schema
+
+
+if __name__ == "__main__":
+    from project.views.main.directors import directors_schema
+    convert_and_register_model("directors", directors_schema)

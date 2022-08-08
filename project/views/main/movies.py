@@ -3,10 +3,10 @@ from flask_restx import Resource, Namespace
 
 from project.setup.schemas.schema import MovieSchema
 from project.setup.inits.app_init import api, db
-from project.setup.models.models import Movie
+from project.setup.models.models import Director, Genre, Movie
 from project.utils.models_converter import convert_and_register_model
 
-movies_ns: Namespace = api.namespace("movies")
+movies_ns: Namespace = Namespace("movies")
 
 movies_schema = MovieSchema(many=True)
 movie_schema = MovieSchema()
@@ -54,11 +54,8 @@ class MovieView(Resource):
     @movies_ns.response(200, description="Возвращает фильм по его ID", model=api.models["movie"])
     @movies_ns.response(404, description="Фильм с данным ID не найден в фильмотеке")
     def get(self, mid: int):
-        movie = db.session.query(Movie).get(mid)
-        if movie is None:
-            return "", 404
-        else:
-            return movie_schema.dump(movie), 200
+        movie = db.session.query(Movie).get_or_404(mid)
+        return movie_schema.dump(movie), 200
 
     @movies_ns.response(204, description="Данные по фильму успешно обновлены")
     @movies_ns.response(404, description="Ошибка обновления данных фильма")
@@ -75,4 +72,3 @@ class MovieView(Resource):
             if db.session.query(Movie).filter(Movie.id == mid).delete():
                 return "", 204
         return "", 404
-

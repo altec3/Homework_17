@@ -12,7 +12,6 @@ class DBTools:
                             **item
                         )
                     )
-                db.session.commit()
         except Exception:
             return False
         else:

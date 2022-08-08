@@ -6,7 +6,7 @@ from project.setup.inits.app_init import api, db
 from project.setup.models.models import Genre
 from project.utils.models_converter import convert_and_register_model
 
-genres_ns: Namespace = api.namespace("genres")
+genres_ns: Namespace = Namespace("genres")
 
 genres_schema = GenreSchema(many=True)
 genre_schema = GenreSchema()
@@ -43,11 +43,8 @@ class GenreView(Resource):
     @genres_ns.response(200, description="Возвращает жанр по его ID", model=api.models["genre"])
     @genres_ns.response(404, description="Жанр с данным ID не найден в базе")
     def get(self, gid: int):
-        genre = db.session.query(Genre).get(gid)
-        if genre is None:
-            return "", 404
-        else:
-            return genre_schema.dump(genre), 200
+        genre = db.session.query(Genre).get_or_404(gid)
+        return genre_schema.dump(genre), 200
 
     @genres_ns.response(204, description="Информация о жанре успешно обновлена")
     @genres_ns.response(404, description="Ошибка обновления информации о жанре")
