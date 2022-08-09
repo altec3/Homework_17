@@ -2,7 +2,8 @@ from flask import request, current_app as app
 from flask_restx import Resource, Namespace
 
 from project.setup.schemas.schema import MovieSchema
-from project.setup.inits.app_init import api, db
+from project.setup.inits.app_init import api
+from project.setup.inits.db_init import db
 from project.setup.models.models import Director, Genre, Movie
 from project.utils.models_converter import convert_and_register_model
 

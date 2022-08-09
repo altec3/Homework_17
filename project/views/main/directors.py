@@ -2,7 +2,8 @@ from flask import request
 from flask_restx import Resource, Namespace
 
 from project.setup.schemas.schema import DirectorSchema
-from project.setup.inits.app_init import api, db
+from project.setup.inits.app_init import api
+from project.setup.inits.db_init import db
 from project.setup.models.models import Director
 from project.utils.models_converter import convert_and_register_model
 

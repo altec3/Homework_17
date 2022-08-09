@@ -1,4 +1,4 @@
-from project.setup.inits.app_init import db
+from project.setup.inits.db_init import db
 
 
 class Director(db.Model):
